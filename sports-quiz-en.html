@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sports Quiz Challenge 🏆</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.15);
+    --text: #f0f2f8;
+    --text-muted: #8b91a8;
+    --accent: #4f7fff;
+    --accent-glow: rgba(79,127,255,0.2);
+    --green: #3ecf8e;
+    --green-bg: rgba(62,207,142,0.12);
+    --red: #f56565;
+    --red-bg: rgba(245,101,101,0.12);
+    --yellow: #f6c90e;
+    --yellow-bg: rgba(246,201,14,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-image:
+      radial-gradient(ellipse at 15% 15%, rgba(79,127,255,0.09) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 85%, rgba(62,207,142,0.07) 0%, transparent 55%);
+  }
+
+  .container { width: 100%; max-width: 560px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .hero-icon {
+    font-size: 3.2rem;
+    display: block;
+    margin-bottom: .8rem;
+    filter: drop-shadow(0 0 24px rgba(246,201,14,0.45));
+    animation: float 3.2s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  .hero h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    background: linear-gradient(135deg, #fff 30%, #6b7399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: .35rem;
+  }
+  .hero p { font-size: .875rem; color: var(--text-muted); }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.75rem;
+  }
+
+  .section-label {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .7rem;
+  }
+
+  /* Sport pills */
+  .pill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .pill {
+    padding: .42rem .9rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .pill:hover { border-color: var(--accent); color: var(--text); }
+  .pill.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: #a5baff;
+    font-weight: 600;
+  }
+
+  /* Controls row */
+  .ctrl-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1.75rem;
+  }
+  .ctrl-row > div { flex: 1; }
+  .seg {
+    display: flex;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+  .seg-btn {
+    flex: 1;
+    padding: .45rem 0;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: .78rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all .15s;
+  }
+  .seg-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  .count-row { display: flex; align-items: center; gap: 10px; }
+  .count-row input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .count-val { font-size: .9rem; font-weight: 600; min-width: 20px; }
+
+  /* Start btn */
+  .btn-start {
+    width: 100%;
+    padding: .95rem;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: .01em;
+    transition: opacity .15s, transform .1s;
+    box-shadow: 0 4px 24px rgba(79,127,255,0.38);
+  }
+  .btn-start:hover { opacity: .9; }
+  .btn-start:active { transform: scale(.98); }
+
+  /* ── GAME ── */
+  .game-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .9rem;
+  }
+  .q-label { font-size: .8rem; color: var(--text-muted); font-weight: 500; }
+  .score-chip {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--yellow);
+    background: var(--yellow-bg);
+    border: 1px solid rgba(246,201,14,.2);
+    padding: .28rem .8rem;
+    border-radius: 20px;
+  }
+
+  .prog-bar {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+
+  .timer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.4rem;
+  }
+  .timer-num {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 22px;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-track {
+    flex: 1;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .timer-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .95s linear, background-color .3s;
+    background: var(--accent);
+  }
+
+  .q-cat {
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+    font-weight: 600;
+  }
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 1.4rem;
+  }
+
+  .opts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-bottom: 1.1rem;
+  }
+  .opt-btn {
+    padding: .85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: .855rem;
+    text-align: left;
+    line-height: 1.45;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all .15s;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(79,127,255,0.1);
+  }
+  .opt-btn.correct {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .opt-btn.wrong {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .opt-btn:disabled { cursor: default; }
+
+  .explain {
+    font-size: .82rem;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    padding: .75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .btn-next {
+    width: 100%;
+    padding: .78rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text);
+    font-size: .875rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+    display: none;
+  }
+  .btn-next:hover { background: var(--surface2); }
+
+  /* ── RESULT ── */
+  .result-body { text-align: center; padding: 1rem 0 .5rem; }
+  .result-icon { font-size: 3.5rem; display: block; margin-bottom: .9rem; }
+  .result-title { font-size: 1.5rem; font-weight: 700; margin-bottom: .35rem; }
+  .result-sub { font-size: .875rem; color: var(--text-muted); margin-bottom: 1.75rem; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+    margin-bottom: 1.75rem;
+  }
+  .stat {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 1rem .75rem;
+    border: 1px solid var(--border);
+  }
+  .stat-val { font-size: 1.5rem; font-weight: 700; }
+  .stat-lbl { font-size: .72rem; color: var(--text-muted); margin-top: .25rem; font-weight: 500; letter-spacing: .04em; }
+
+  .result-btns { display: flex; gap: 10px; }
+  .btn-ghost {
+    flex: 1; padding: .78rem; border-radius: 10px;
+    border: 1px solid var(--border-strong); background: transparent;
+    color: var(--text); font-size: .875rem; cursor: pointer;
+    font-family: inherit; font-weight: 500; transition: background .15s;
+  }
+  .btn-ghost:hover { background: var(--surface2); }
+  .btn-solid {
+    flex: 1; padding: .78rem; border-radius: 10px;
+    border: none; background: var(--accent); color: #fff;
+    font-size: .875rem; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity .15s;
+    box-shadow: 0 4px 16px rgba(79,127,255,0.32);
+  }
+  .btn-solid:hover { opacity: .88; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  @media (max-width: 480px) {
+    .opts { grid-template-columns: 1fr; }
+    .ctrl-row { flex-direction: column; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- SETUP -->
+  <div id="setup" class="screen active">
+    <div class="hero">
+      <span class="hero-icon">🏆</span>
+      <h1>Sports Quiz Challenge</h1>
+      <p>80+ questions · 7 categories · Race the clock</p>
+    </div>
+    <div class="card">
+      <div class="section-label">Category</div>
+      <div class="pill-grid" id="cat-btns">
+        <button class="pill active" data-val="all">🏅 All Sports</button>
+        <button class="pill" data-val="football">⚽ Football</button>
+        <button class="pill" data-val="basketball">🏀 Basketball</button>
+        <button class="pill" data-val="tennis">🎾 Tennis</button>
+        <button class="pill" data-val="olympics">🏅 Olympics</button>
+        <button class="pill" data-val="swimming">🏊 Swimming</button>
+        <button class="pill" data-val="athletics">🏃 Athletics</button>
+        <button class="pill" data-val="other">🎯 Other</button>
+      </div>
+
+      <div class="ctrl-row">
+        <div>
+          <div class="section-label">Difficulty</div>
+          <div class="seg" id="diff-btns">
+            <button class="seg-btn active" data-val="easy">Easy</button>
+            <button class="seg-btn" data-val="hard">Hard</button>
+            <button class="seg-btn" data-val="all">Mixed</button>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Questions</div>
+          <div class="count-row">
+            <input type="range" id="q-slider" min="3" max="10" value="5">
+            <span class="count-val" id="q-label">5</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-start" id="start-btn">Start Game →</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="screen">
+    <div class="card">
+      <div class="game-bar">
+        <span class="q-label" id="q-label-game">Question 1 of 5</span>
+        <span class="score-chip" id="score-chip">0 pts</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="timer-row">
+        <span class="timer-num" id="timer-num">30</span>
+        <div class="timer-track"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+      </div>
+      <div class="q-cat" id="q-cat"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="opts"></div>
+      <div class="explain" id="explain"></div>
+      <button class="btn-next" id="btn-next">Next →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="screen">
+    <div class="card">
+      <div class="result-body">
+        <span class="result-icon" id="r-icon">🏆</span>
+        <div class="result-title" id="r-title"></div>
+        <div class="result-sub" id="r-sub"></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-val" id="r-score" style="color:var(--yellow)">0</div><div class="stat-lbl">Score</div></div>
+          <div class="stat"><div class="stat-val" id="r-correct" style="color:var(--green)">0/0</div><div class="stat-lbl">Correct</div></div>
+          <div class="stat"><div class="stat-val" id="r-acc">0%</div><div class="stat-lbl">Accuracy</div></div>
+        </div>
+        <div class="result-btns">
+          <button class="btn-ghost" id="btn-setup">Change settings</button>
+          <button class="btn-solid" id="btn-again">Play again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+// ── QUESTION BANK ──
+const QUESTIONS = [
+  // ── FOOTBALL (easy) ──
+  {cat:'football',hard:false,q:'How many players are on the field per team in a standard football (soccer) match?',opts:['A. 9','B. 10','C. 11','D. 12'],ans:2,exp:'Each team fields 11 players, including one goalkeeper, during a standard match.'},
+  {cat:'football',hard:false,q:'Which country has won the most FIFA World Cup titles?',opts:['A. Germany','B. Italy','C. Argentina','D. Brazil'],ans:3,exp:'Brazil has won the World Cup 5 times: 1958, 1962, 1970, 1994, and 2002.'},
+  {cat:'football',hard:false,q:'How long is a standard football match?',opts:['A. 80 minutes','B. 90 minutes','C. 100 minutes','D. 120 minutes'],ans:1,exp:'A standard match is 90 minutes — two 45-minute halves — plus added stoppage time.'},
+  {cat:'football',hard:false,q:'Which player is known as "CR7"?',opts:['A. Carlos Ramos','B. Cristiano Ronaldo','C. Carlos Rodriguez','D. César Ruiz'],ans:1,exp:'Cristiano Ronaldo wears the number 7 jersey, giving rise to his famous nickname CR7.'},
+  {cat:'football',hard:false,q:'What color card results in a player being sent off?',opts:['A. Yellow','B. Orange','C. Red','D. Blue'],ans:2,exp:'A red card means immediate dismissal from the game. A second yellow card also results in a red.'},
+  {cat:'football',hard:false,q:'What is the name of the top football league in England?',opts:['A. La Liga','B. Serie A','C. Premier League','D. Bundesliga'],ans:2,exp:'The Premier League is England\'s top division, founded in 1992 and featuring 20 clubs.'},
+  {cat:'football',hard:false,q:'Which club has won the most UEFA Champions League titles?',opts:['A. Barcelona','B. Bayern Munich','C. Real Madrid','D. AC Milan'],ans:2,exp:'Real Madrid have won the Champions League/European Cup a record 15 times as of 2024.'},
+  {cat:'football',hard:true,q:'Who is the all-time top scorer in FIFA World Cup history?',opts:['A. Ronaldo (Brazil)','B. Miroslav Klose','C. Pelé','D. Lionel Messi'],ans:1,exp:'Miroslav Klose scored 16 World Cup goals across four tournaments (2002–2014), a record that still stands.'},
+  {cat:'football',hard:true,q:'In the 2022 Qatar World Cup final, what was the score after extra time between Argentina and France?',opts:['A. 2–2','B. 3–3','C. 4–4','D. 1–1'],ans:1,exp:'The final ended 3–3 after extra time; Argentina then won 4–2 on penalties to claim their third World Cup.'},
+  {cat:'football',hard:true,q:'Which player scored the famous "Hand of God" goal at the 1986 World Cup?',opts:['A. Pelé','B. Zidane','C. Maradona','D. Ronaldo'],ans:2,exp:'Diego Maradona punched the ball into the net against England in the 1986 quarterfinal, later calling it "the Hand of God."'},
+  {cat:'football',hard:true,q:'How many times has Lionel Messi won the Ballon d\'Or as of 2023?',opts:['A. 6','B. 7','C. 8','D. 5'],ans:2,exp:'Messi won his eighth Ballon d\'Or in 2023, extending his own record as the all-time winner of the award.'},
+
+  // ── BASKETBALL (easy) ──
+  {cat:'basketball',hard:false,q:'How many points is a shot worth if scored from beyond the three-point line?',opts:['A. 1','B. 2','C. 3','D. 4'],ans:2,exp:'Shots made from beyond the arc are worth 3 points, while shots inside the arc score 2 points.'},
+  {cat:'basketball',hard:false,q:'Which NBA team has won the most championships?',opts:['A. LA Lakers','B. Boston Celtics','C. Golden State Warriors','D. Chicago Bulls'],ans:1,exp:'The Boston Celtics have won 18 NBA championships, the most in league history.'},
+  {cat:'basketball',hard:false,q:'How tall is an official NBA basketball hoop?',opts:['A. 8 feet','B. 9 feet','C. 10 feet','D. 11 feet'],ans:2,exp:'The rim is set at exactly 10 feet (3.05 m) above the floor, a standard used at all levels of the game.'},
+  {cat:'basketball',hard:false,q:'Who is known as "The King" in the NBA?',opts:['A. Kobe Bryant','B. LeBron James','C. Kevin Durant','D. Shaquille O\'Neal'],ans:1,exp:'LeBron James earned the nickname "King James" for his dominant play and four NBA championship rings.'},
+  {cat:'basketball',hard:false,q:'Which country invented basketball?',opts:['A. USA','B. Canada','C. UK','D. France'],ans:0,exp:'Basketball was invented in 1891 by Canadian-American James Naismith while working in Springfield, Massachusetts.'},
+  {cat:'basketball',hard:true,q:'What is the highest single-game scoring record in NBA history?',opts:['A. Kobe Bryant – 81 pts','B. Wilt Chamberlain – 100 pts','C. Michael Jordan – 69 pts','D. David Thompson – 73 pts'],ans:1,exp:'Wilt Chamberlain scored 100 points for the Philadelphia Warriors against the New York Knicks on March 2, 1962.'},
+  {cat:'basketball',hard:true,q:'How many NBA Finals MVP awards did Michael Jordan win?',opts:['A. 4','B. 5','C. 6','D. 3'],ans:2,exp:'Jordan won the Finals MVP all six times he reached the NBA Finals (1991–93, 1996–98), a perfect record.'},
+  {cat:'basketball',hard:true,q:'Who broke LeBron James\'s all-time NBA scoring record in 2023?',opts:['A. Kevin Durant','B. Kareem Abdul-Jabbar','C. Nobody – LeBron broke the record','D. Stephen Curry'],ans:2,exp:'LeBron James surpassed Kareem Abdul-Jabbar\'s long-standing record of 38,387 points on February 7, 2023.'},
+
+  // ── TENNIS ──
+  {cat:'tennis',hard:false,q:'How many Grand Slam tournaments are held each year?',opts:['A. 2','B. 3','C. 4','D. 5'],ans:2,exp:'The four Grand Slams are the Australian Open, French Open, Wimbledon, and US Open.'},
+  {cat:'tennis',hard:false,q:'What surface is Wimbledon played on?',opts:['A. Clay','B. Hard court','C. Grass','D. Carpet'],ans:2,exp:'Wimbledon is the only Grand Slam played on grass, giving it a unique fast-paced character.'},
+  {cat:'tennis',hard:false,q:'What does "love" mean in tennis scoring?',opts:['A. 30 points','B. 0 points','C. Advantage','D. Deuce'],ans:1,exp:'"Love" means zero in tennis. The origin is debated but commonly linked to the French word "l\'oeuf" (egg), representing a zero.'},
+  {cat:'tennis',hard:false,q:'Who holds the all-time record for most men\'s Grand Slam singles titles (as of 2024)?',opts:['A. Roger Federer','B. Rafael Nadal','C. Novak Djokovic','D. Pete Sampras'],ans:2,exp:'Novak Djokovic holds the record with 24 Grand Slam singles titles, surpassing Nadal\'s 22.'},
+  {cat:'tennis',hard:true,q:'What surface is the French Open played on?',opts:['A. Grass','B. Hard court','C. Clay','D. Artificial turf'],ans:2,exp:'Roland Garros uses red clay, making it the slowest of the four Grand Slams and favoring baseline players.'},
+  {cat:'tennis',hard:true,q:'Who won the first Grand Slam of her career at the 2018 US Open?',opts:['A. Serena Williams','B. Naomi Osaka','C. Simona Halep','D. Angelique Kerber'],ans:1,exp:'Naomi Osaka defeated Serena Williams in the 2018 US Open final, becoming the first Japanese player to win a Grand Slam.'},
+  {cat:'tennis',hard:true,q:'Which player was nicknamed "The Swiss Maestro"?',opts:['A. Stan Wawrinka','B. Martina Hingis','C. Roger Federer','D. Marc Rosset'],ans:2,exp:'Roger Federer earned this nickname for his elegant, precise style of play that many consider the most complete in tennis history.'},
+
+  // ── OLYMPICS ──
+  {cat:'olympics',hard:false,q:'In what year were the first modern Olympic Games held?',opts:['A. 1892','B. 1896','C. 1900','D. 1904'],ans:1,exp:'The first modern Olympic Games were held in Athens, Greece in 1896, reviving the ancient tradition.'},
+  {cat:'olympics',hard:false,q:'How many rings are on the Olympic flag?',opts:['A. 4','B. 5','C. 6','D. 7'],ans:1,exp:'The five interlocking rings represent the five continents of the world united by the Olympic movement.'},
+  {cat:'olympics',hard:false,q:'Which city hosted the 2020 Summer Olympics (delayed to 2021)?',opts:['A. Paris','B. Los Angeles','C. Tokyo','D. Beijing'],ans:2,exp:'Tokyo hosted the delayed 2020 Olympics in summer 2021 due to the COVID-19 pandemic, retaining the "Tokyo 2020" branding.'},
+  {cat:'olympics',hard:false,q:'How often are the Summer Olympic Games held?',opts:['A. Every 2 years','B. Every 3 years','C. Every 4 years','D. Every 5 years'],ans:2,exp:'The Summer Olympics are held every four years. This interval is called an "Olympiad."'},
+  {cat:'olympics',hard:true,q:'Who won the most gold medals in a single Olympic Games?',opts:['A. Carl Lewis','B. Michael Phelps (8 golds in 2008)','C. Mark Spitz (7 golds in 1972)','D. Usain Bolt'],ans:1,exp:'Michael Phelps won 8 gold medals at the 2008 Beijing Olympics, the most by any athlete in a single Games.'},
+  {cat:'olympics',hard:true,q:'Which country has won the most total Olympic gold medals in history?',opts:['A. China','B. Soviet Union (USSR)','C. Great Britain','D. United States'],ans:3,exp:'The United States leads all nations with over 1,000 gold medals accumulated across all Summer and Winter Olympics.'},
+  {cat:'olympics',hard:true,q:'What was the first country outside of Europe and North America to host the Summer Olympics?',opts:['A. Japan','B. Mexico','C. South Korea','D. Australia'],ans:3,exp:'Melbourne, Australia hosted the 1956 Summer Olympics, becoming the first host outside Europe and the Americas.'},
+
+  // ── SWIMMING ──
+  {cat:'swimming',hard:false,q:'What are the four competitive swimming strokes?',opts:['A. Freestyle / backstroke / breaststroke / butterfly','B. Crawl / sidestroke / backstroke / breaststroke','C. Freestyle / sidestroke / butterfly / crawl','D. Butterfly / backstroke / sidestroke / freestyle'],ans:0,exp:'The four official strokes are freestyle (front crawl), backstroke, breaststroke, and butterfly.'},
+  {cat:'swimming',hard:false,q:'What is the shortest standard Olympic swimming event?',opts:['A. 25 m','B. 50 m','C. 100 m','D. 200 m'],ans:1,exp:'The 50 m freestyle is the shortest event at the Olympics, often called the "sprint" of swimming.'},
+  {cat:'swimming',hard:false,q:'How many gold medals did Michael Phelps win across his Olympic career?',opts:['A. 18','B. 20','C. 23','D. 25'],ans:2,exp:'Phelps won 23 Olympic gold medals across four Games (2000–2016), the most of any athlete in history.'},
+  {cat:'swimming',hard:true,q:'In the individual medley, what is the correct order of strokes?',opts:['A. Freestyle / butterfly / backstroke / breaststroke','B. Butterfly / backstroke / breaststroke / freestyle','C. Backstroke / breaststroke / butterfly / freestyle','D. Breaststroke / backstroke / butterfly / freestyle'],ans:1,exp:'The individual medley order is butterfly → backstroke → breaststroke → freestyle. The relay medley reverses this.'},
+  {cat:'swimming',hard:true,q:'Which swimmer broke the world 100 m freestyle record at the 2009 World Championships wearing a polyurethane suit?',opts:['A. Michael Phelps','B. César Cielo','C. Ian Thorpe','D. Ryan Lochte'],ans:1,exp:'César Cielo of Brazil set the 100 m freestyle world record (46.91 s) in Rome 2009. Many super-suit records from that era still stand.'},
+
+  // ── ATHLETICS ──
+  {cat:'athletics',hard:false,q:'What is the distance of a standard marathon?',opts:['A. 40 km','B. 42.195 km','C. 45 km','D. 50 km'],ans:1,exp:'A marathon is 42.195 km (26 miles 385 yards), a distance standardised at the 1908 London Olympics.'},
+  {cat:'athletics',hard:false,q:'Who holds the men\'s 100 m world record (as of 2024)?',opts:['A. Justin Gatlin','B. Asafa Powell','C. Usain Bolt','D. Yohan Blake'],ans:2,exp:'Usain Bolt set the world record of 9.58 seconds at the 2009 Berlin World Championships — a record that still stands.'},
+  {cat:'athletics',hard:false,q:'How many hurdles must an athlete clear in the 110 m hurdles?',opts:['A. 8','B. 10','C. 12','D. 15'],ans:1,exp:'Athletes must clear 10 hurdles spaced 9.14 m apart, with the first hurdle 13.72 m from the start.'},
+  {cat:'athletics',hard:true,q:'Which event combines a 100 m sprint, long jump, shot put, high jump, 400 m, 110 m hurdles, discus, pole vault, javelin, and 1500 m?',opts:['A. Heptathlon','B. Biathlon','C. Triathlon','D. Decathlon'],ans:3,exp:'The decathlon (10 events over two days) is considered the ultimate test of all-around athletic ability.'},
+  {cat:'athletics',hard:true,q:'What is the current men\'s world record for the pole vault?',opts:['A. 6.12 m','B. 6.21 m','C. 6.00 m','D. 5.95 m'],ans:1,exp:'Armand Duplantis (Sweden) set the world record of 6.21 m at the 2024 Paris Olympics, breaking his own previous record.'},
+
+  // ── OTHER ──
+  {cat:'other',hard:false,q:'In golf, what term describes completing a hole in one shot under par?',opts:['A. Eagle','B. Birdie','C. Bogey','D. Albatross'],ans:1,exp:'A birdie is one under par. An eagle is two under, an albatross (condor) is three under, and a bogey is one over.'},
+  {cat:'other',hard:false,q:'How many players are on a volleyball team on the court at one time?',opts:['A. 4','B. 5','C. 6','D. 7'],ans:2,exp:'Each volleyball team has 6 players on the court, rotating positions after winning a serve.'},
+  {cat:'other',hard:false,q:'What sport is played at Wimbledon?',opts:['A. Cricket','B. Tennis','C. Polo','D. Squash'],ans:1,exp:'Wimbledon is the world\'s oldest and most prestigious tennis tournament, held annually in London since 1877.'},
+  {cat:'other',hard:false,q:'In which sport would you perform a "slam dunk"?',opts:['A. Volleyball','B. Handball','C. Basketball','D. Water polo'],ans:2,exp:'A slam dunk is a high-percentage shot in basketball where the player jumps and forces the ball directly through the hoop.'},
+  {cat:'other',hard:false,q:'How many events make up a triathlon?',opts:['A. 2','B. 3','C. 4','D. 5'],ans:1,exp:'A triathlon consists of three sequential events: swimming, cycling, and running, completed without a break between disciplines.'},
+  {cat:'other',hard:true,q:'In Formula 1, how many points does the race winner receive?',opts:['A. 10','B. 20','C. 25','D. 30'],ans:2,exp:'Since 2010, the F1 race winner earns 25 points. Second place gets 18, third 15, and so on down to 10th place (1 point).'},
+  {cat:'other',hard:true,q:'What is the official weight of a cricket ball in Test matches?',opts:['A. 142–144 g','B. 155.9–163 g','C. 170–180 g','D. 120–130 g'],ans:1,exp:'A cricket ball must weigh between 155.9 g and 163 g (5.5–5.75 oz), per Laws of Cricket.'},
+  {cat:'other',hard:true,q:'In which year did the first Rugby World Cup take place?',opts:['A. 1983','B. 1987','C. 1991','D. 1995'],ans:1,exp:'The inaugural Rugby World Cup was held in 1987, co-hosted by Australia and New Zealand. New Zealand (All Blacks) won it.'},
+  {cat:'other',hard:true,q:'What is the maximum break (highest possible score in a single visit) in snooker?',opts:['A. 147','B. 155','C. 180','D. 200'],ans:0,exp:'A maximum break of 147 requires potting all 15 reds with blacks (120 pts) then all colours in order (27 pts).'},
+];
+
+// ── STATE ──
+let selCat = 'all', selDiff = 'all', totalQ = 5;
+let pool = [], curIdx = 0, score = 0, correctCount = 0;
+let timerInt = null, timeLeft = 30;
+const TOTAL_TIME = 30;
+const SCORE = { easy: 10, hard: 20 };
+const CAT_LABELS = {
+  football:'⚽ Football', basketball:'🏀 Basketball',
+  tennis:'🎾 Tennis', olympics:'🏅 Olympics',
+  swimming:'🏊 Swimming', athletics:'🏃 Athletics', other:'🎯 Other'
+};
+
+// ── CONTROLS ──
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+document.querySelectorAll('#cat-btns .pill').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#cat-btns .pill').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); selCat = b.dataset.val;
+}));
+document.querySelectorAll('#diff-btns .seg-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#diff-btns .seg-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); selDiff = b.dataset.val;
+}));
+const slider = document.getElementById('q-slider');
+slider.addEventListener('input', () => {
+  totalQ = +slider.value;
+  document.getElementById('q-label').textContent = totalQ;
+});
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('btn-next').addEventListener('click', nextQ);
+document.getElementById('btn-setup').addEventListener('click', () => show('setup'));
+document.getElementById('btn-again').addEventListener('click', startGame);
+
+// ── GAME ──
+function startGame() {
+  let filtered = QUESTIONS.filter(q => {
+    const catOk = selCat === 'all' || q.cat === selCat;
+    const diffOk = selDiff === 'all'
+      || (selDiff === 'easy' && !q.hard)
+      || (selDiff === 'hard' && q.hard);
+    return catOk && diffOk;
+  });
+  if (!filtered.length) filtered = QUESTIONS;
+  pool = shuffle(filtered).slice(0, Math.min(totalQ, filtered.length));
+  totalQ = pool.length;
+  curIdx = 0; score = 0; correctCount = 0;
+  show('game');
+  renderQ();
+}
+
+function shuffle(a) { return [...a].sort(() => Math.random() - .5); }
+
+function renderQ() {
+  clearTimer();
+  const q = pool[curIdx];
+  document.getElementById('q-label-game').textContent = `Question ${curIdx + 1} of ${totalQ}`;
+  document.getElementById('prog-fill').style.width = `${(curIdx / totalQ) * 100}%`;
+  document.getElementById('score-chip').textContent = `${score} pts`;
+  document.getElementById('q-cat').textContent = CAT_LABELS[q.cat] || q.cat;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('explain').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const grid = document.getElementById('opts');
+  grid.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => answer(i, q, btn));
+    grid.appendChild(btn);
+  });
+
+  startTimer(q);
+}
+
+function startTimer(q) {
+  timeLeft = TOTAL_TIME; updateTimer();
+  timerInt = setInterval(() => {
+    timeLeft--;
+    updateTimer();
+    if (timeLeft <= 0) { clearTimer(); timeUp(q); }
+  }, 1000);
+}
+function updateTimer() {
+  const pct = (timeLeft / TOTAL_TIME) * 100;
+  const fill = document.getElementById('timer-fill');
+  fill.style.width = pct + '%';
+  fill.style.backgroundColor = timeLeft > 8 ? 'var(--accent)' : 'var(--red)';
+  document.getElementById('timer-num').textContent = timeLeft;
+}
+function clearTimer() { if (timerInt) { clearInterval(timerInt); timerInt = null; } }
+
+function timeUp(q) {
+  document.querySelectorAll('.opt-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.ans) b.classList.add('correct');
+  });
+  showExp("⏰ Time's up! " + q.exp);
+  showNext();
+}
+
+function answer(i, q, btn) {
+  if (btn.disabled) return;
+  clearTimer();
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (i === q.ans) {
+    btn.classList.add('correct');
+    correctCount++;
+    const base = q.hard ? SCORE.hard : SCORE.easy;
+    const bonus = Math.round((timeLeft / TOTAL_TIME) * base * 0.5);
+    score += base + bonus;
+    showExp('✅ Correct! ' + q.exp);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt-btn')[q.ans].classList.add('correct');
+    showExp('❌ Wrong. ' + q.exp);
+  }
+  document.getElementById('score-chip').textContent = `${score} pts`;
+  showNext();
+}
+
+function showExp(t) {
+  const b = document.getElementById('explain');
+  b.textContent = t; b.style.display = 'block';
+}
+function showNext() {
+  const btn = document.getElementById('btn-next');
+  btn.style.display = 'block';
+  btn.textContent = curIdx + 1 >= totalQ ? 'See results →' : 'Next →';
+}
+
+function nextQ() {
+  curIdx++;
+  if (curIdx >= totalQ) { showResult(); return; }
+  renderQ();
+}
+
+function showResult() {
+  show('result');
+  const acc = Math.round((correctCount / totalQ) * 100);
+  let icon = '😅', title = 'Keep practising!';
+  if (acc >= 90) { icon = '🏆'; title = 'Sports Genius!'; }
+  else if (acc >= 70) { icon = '🥇'; title = 'Great effort!'; }
+  else if (acc >= 50) { icon = '🥈'; title = 'Not bad!'; }
+  document.getElementById('r-icon').textContent = icon;
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-sub').textContent =
+    `${totalQ} questions · ${selCat === 'all' ? 'All Sports' : CAT_LABELS[selCat]} · ${selDiff === 'all' ? 'Mixed' : selDiff.charAt(0).toUpperCase()+selDiff.slice(1)} difficulty`;
+  document.getElementById('r-score').textContent = score;
+  document.getElementById('r-correct').textContent = `${correctCount}/${totalQ}`;
+  document.getElementById('r-acc').textContent = acc + '%';
+}
+</script>
+</body>
+</html>
